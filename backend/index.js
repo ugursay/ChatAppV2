@@ -30,7 +30,10 @@ io.on("connection", (socket) => {
 
   socket.on("register_user_id", (userId) => {
     socket.userId = userId;
-    console.log(`kullanıcı ${userId} soket ${socket.id} ile kaydedildi`);
+    socket.join(userId); // kişiye özel bildirim için aksi takdirde herkes görebilir.
+    console.log(
+      `kullanıcı ${userId} soket ${socket.id} ile kaydedildi ve odaya katıldı`
+    );
   });
 
   socket.on("disconnect", () => {

@@ -5,6 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import io from "socket.io-client";
 
 const Friends = () => {
   const { user } = useContext(AuthContext);
@@ -13,7 +14,7 @@ const Friends = () => {
   const [allUsers, setAllUsers] = useState([]);
   const [friends, setFriends] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
-  const [outgoingRequests, setOutgoingRequests] = useState([]); // <-- DÜZELTİLDİ: setOutgoingRequests
+  const [outgoingRequests, setOutgoingRequests] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const token = user?.token;
@@ -48,7 +49,7 @@ const Friends = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      setOutgoingRequests(outgoingRes.data); // <-- DÜZELTİLDİ: setOutgoingRequests
+      setOutgoingRequests(outgoingRes.data);
     } catch (err) {
       toast.error("Veriler alınırken bir hata oluştu.");
       console.error(err);
@@ -61,13 +62,54 @@ const Friends = () => {
     setAllUsers,
     setFriends,
     setPendingRequests,
-    setOutgoingRequests, // Düzeltilmiş isme uygun
+    setOutgoingRequests,
     setLoading,
   ]);
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+
+    const socket = io("http://localhost:5000");
+
+    socket.on("connect", () => {
+      console.log("socket.IO bağlı:", socket.id);
+      if (currentUserId) {
+        socket.emit("register_user_id", currentUserId);
+      }
+    });
+
+    socket.on("friend_request_received", (data) => {
+      console.log("Arkadaşlık isteği alındı:", data);
+      if (data.receiverId === currentUserId) {
+        toast.info(`${data.requesterUsername} size arkadaşlık isteği gönderdi`);
+        fetchData();
+      }
+    });
+
+    socket.on("friend_request_accepted", (data) => {
+      console.log("Arkadaşlık isteği kabul edildi:", data);
+      if (data.requesterId === currentUserId) {
+        toast.info(`${data.accepterUsername} arkadaşlık isteğinizi kabul etti`);
+      }
+      fetchData();
+    });
+
+    socket.on("unfriend_successful", (data) => {
+      console.log("Arkadaşlık ilişkisi kesildi", data);
+      if (data.user1Id === currentUserId || data.user2Id === currentUserId) {
+        toast.info("arkadaşlık ilişkiniz güncellendi");
+      }
+      fetchData();
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Socket.IO bağlantısı kesildi");
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [fetchData, currentUserId]);
 
   const sendRequest = async (receiverId) => {
     setLoading(true);

@@ -28,7 +28,7 @@ export const sendFriendRequest = async (req, res) => {
 
     res.status(201).json({ message: "İstek gönderildi." });
 
-    io.sockets.emit("friend_request_received", {
+    io.to(receiverId).emit("friend_request_received", {
       receiverId,
       requesterId,
       requesterUsername: req.user.username,
@@ -58,7 +58,13 @@ export const acceptFriendRequest = async (req, res) => {
 
     res.json({ message: "Arkadaşlık isteği kabul edildi." });
 
-    io.sockets.emit("friend_request_accepted", {
+    io.to(receiverId).emit("friend_request_accepted", {
+      accepterId: receiverId,
+      requesterId: requesterId,
+      accepterUsername: req.user.username,
+    });
+
+    io.to(requesterId).emit("friend_request_accepted", {
       accepterId: receiverId,
       requesterId: requesterId,
       accepterUsername: req.user.username,
@@ -118,6 +124,7 @@ export const getPendingRequests = async (req, res) => {
 export const unfriend = async (req, res) => {
   const userId = req.user.id; // Token'dan gelen mevcut kullanıcının ID'si
   const { friendId } = req.body; // Çıkarılacak arkadaşın ID'si
+  const io = req.app.get("socketio");
 
   try {
     // İki kullanıcı arasındaki arkadaşlık ilişkisini bul
@@ -136,6 +143,16 @@ export const unfriend = async (req, res) => {
     }
 
     res.status(200).json({ message: "Arkadaş başarıyla silindi." });
+
+    io.to(userId).emit("unfriend_successful", {
+      user1Id: userId,
+      user2Id: friendId,
+    });
+
+    io.to(friendId).emit("unfriend_successful", {
+      user1Id: userId,
+      user2Id: friendId,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Arkadaş silinirken bir hata oluştu." });
