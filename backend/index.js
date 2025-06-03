@@ -3,6 +3,7 @@ import cors from "cors";
 import authRoutes from "./routes/auth.js";
 import friendRoutes from "./routes/friends.js";
 import userRoutes from "./routes/users.js";
+import messageRoutes from "./routes/messages.js";
 import http from "http";
 import { Server as SocketIOServer } from "socket.io";
 
@@ -24,6 +25,8 @@ app.use("/api", authRoutes);
 app.use("/api/friends", friendRoutes);
 
 app.use("/api/users", userRoutes);
+
+app.use("/api/messages", messageRoutes);
 
 io.on("connection", (socket) => {
   console.log("yeni bir kullanıcı bağlandı", socket.id);
