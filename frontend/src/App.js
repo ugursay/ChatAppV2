@@ -9,6 +9,7 @@ import Friends from "./pages/Friends";
 import VerifyEmail from "./pages/VerifyEmail"; // Yeni ekledik
 import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ChatPage from "./pages/ChatPage";
 
 function App() {
   return (
@@ -36,6 +37,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Friends />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute>
+                <ChatPage />
               </ProtectedRoute>
             }
           />
