@@ -6,6 +6,7 @@ import {
   getPendingRequests,
   unfriend,
   getOutgoingRequests,
+  cancelFriendRequest,
 } from "../controllers/friendController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 
@@ -19,5 +20,6 @@ router.get("/", getFriends);
 router.get("/requests", getPendingRequests);
 router.delete("/unfriend", unfriend);
 router.get("/outgoing-requests", getOutgoingRequests);
+router.delete("/request/cancel", cancelFriendRequest);
 
 export default router;

@@ -102,6 +102,16 @@ const Friends = () => {
       fetchData();
     });
 
+    socket.on("friend_request_cancelled", (data) => {
+      console.log("Arkadaşlık isteği geri çekildi:", data);
+      if (data.receiverId === currentUserId) {
+        toast.info(
+          `${data.requesterUsername} adlı kullanıcı arkadaşlık isteğini geri çekti.`
+        );
+        fetchData();
+      }
+    });
+
     socket.on("disconnect", () => {
       console.log("Socket.IO bağlantısı kesildi");
     });
@@ -152,7 +162,7 @@ const Friends = () => {
       toast.success(res.data.message);
 
       setPendingRequests((prevPending) =>
-        prevPending.filter((req) => req.id === requesterId)
+        prevPending.filter((req) => req.id !== requesterId)
       );
       const newFriend = pendingRequests.find((req) => req.id === requesterId);
 
@@ -185,6 +195,29 @@ const Friends = () => {
       await fetchData();
     } catch (err) {
       toast.error(err.response?.data?.message || "Arkadaş çıkarılamadı.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelRequest = async (receiverId) => {
+    setLoading(true);
+    try {
+      const res = await axios.delete(
+        "http://localhost:5000/api/friends/request/cancel",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          data: { receiverId },
+        }
+      );
+      toast.success(res.data.message);
+      setOutgoingRequests((prevOutgoing) =>
+        prevOutgoing.filter((req) => req.id !== receiverId)
+      );
+      await fetchData();
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "istek geri çekilemedi");
     } finally {
       setLoading(false);
     }
@@ -276,6 +309,42 @@ const Friends = () => {
                   >
                     Kabul Et
                   </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="mb-8">
+          <h3 className="text-xl font-semibold mb-4 text-gray-700 hover:scale-105 transition-transform duration-300 will-change-transform bg-gray-200 bg-opacity-60 px-5 py-5 rounded-xl w-fit mx-auto">
+            Giden Arkadaşlık İstekleri
+          </h3>
+          {loading ? (
+            <p className="text-center text-gray-500">Yükleniyor...</p>
+          ) : outgoingRequests.length === 0 ? (
+            <p className="text-center text-gray-500 hover:scale-95 transition-transform duration-300 will-change-transform w-fit mx-auto">
+              Gönderilmiş İstek Yok.
+            </p>
+          ) : (
+            <ul className="space-y-3 max-h-40 overflow-y-auto pr-2">
+              {outgoingRequests.map((req) => (
+                <li
+                  key={req.id}
+                  className="flex items-center justify-between bg-gray-200 px-5 py-2 hover:scale-105 transition-transform duration-300 will-change-transform bg-gray-200 bg-opacity-60 rounded-xl w-full max-w-md mx-auto"
+                >
+                  <span className="flex-grow min-w-0 truncate">
+                    {req.username}
+                  </span>
+                  <button
+                    onClick={() => handleCancelRequest(req.id)}
+                    disabled={loading}
+                    className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 disable:bg-yellow-300 transition-colors duration-200 flex-shrink-0 ml-4"
+                  >
+                    Geri Çek
+                  </button>
+                  <span className="text-gray-500 text-sm italic flex-shrink-0 ml-4">
+                    Beklemede...
+                  </span>
                 </li>
               ))}
             </ul>

@@ -176,3 +176,39 @@ export const getOutgoingRequests = async (req, res) => {
     res.status(500).json({ message: "Giden istekler alınırken hata oluştu." });
   }
 };
+
+export const cancelFriendRequest = async (req, res) => {
+  const requesterId = req.user.id;
+  const { receiverId } = req.body;
+  const io = req.app.get("socketio");
+  try {
+    const [result] = await db.execute(
+      `DELETE FROM friends WHERE requester_id = ? AND receiver_id = ? AND status = 'pending'`,
+      [requesterId, receiverId]
+    );
+    if (result.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ message: "Geri çekilecek bekleyen istek bulunamadı" });
+    }
+    res
+      .status(200)
+      .json({ message: "Arkadaşlık isteği başarıyla geri çekildi." });
+
+    io.to(receiverId).emit("friend_request_cancelled", {
+      requesterId: requesterId,
+      receiverId: receiverId,
+      requesterUsername: req.user.username,
+    });
+    io.to(requesterId).emit("friend_request_cancelled", {
+      requesterId: requesterId,
+      receiverId: receiverId,
+      requesterUsername: req.user.username,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: "Arkadaşlık isteği geri çekilirken bir hata oluştu",
+    });
+  }
+};
