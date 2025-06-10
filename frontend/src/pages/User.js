@@ -11,6 +11,9 @@ const User = () => {
   const handleFriends = () => {
     navigate("/friends");
   };
+  const handleChat = () => {
+    navigate("/chat");
+  };
 
   const handleLogout = () => {
     logout();
@@ -33,7 +36,19 @@ const User = () => {
             onClick={handleFriends}
             className="w-full bg-blue-500 text-white font-semibold py-2 rounded-lg hover:bg-blue-600 transition-colors hover:scale-105 transition-transform duration-300 will-change-transform"
           >
-            Arkadaşlık Yönetimi
+            Arkadaşlık Panelim
+          </button>
+          <button
+            onClick={handleChat}
+            className="w-full bg-blue-500 text-white font-semibold py-2 rounded-lg hover:bg-blue-600 transition-colors hover:scale-105 transition-transform duration-300 will-change-transform"
+          >
+            Mesaj Panelim
+          </button>
+          <button
+            // onClick={handleChat}
+            className="w-full bg-blue-500 text-white font-semibold py-2 rounded-lg hover:bg-blue-600 transition-colors hover:scale-105 transition-transform duration-300 will-change-transform"
+          >
+            Profilimi Düzenle
           </button>
           <button
             onClick={handleLogout}

@@ -27,6 +27,11 @@ export const registerUser = async (req, res) => {
 
     const userId = result.insertId;
 
+    await db.execute(
+      `INSERT INTO user_profiles (user_id,name,bio,gender) VALUES (?,?,?,?)`,
+      [userId, username, "", ""]
+    );
+
     const verificationToken = jwt.sign(
       { id: userId, email },
       process.env.JWT_SECRET,
@@ -66,6 +71,13 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ message: "Geçersiz kimlik bilgileri." });
     }
 
+    const [profiles] = await db.execute(
+      `SELECT name, bio, gender FROM user_profiles WHERE user_id = ?`,
+      [user.id]
+    );
+
+    const userProfile = profiles[0] || {};
+
     // Token oluştururken username ve email'i de payload'a ekle
     const token = jwt.sign(
       { id: user.id, email: user.email, username: user.username }, // username ve email eklendi
@@ -76,8 +88,16 @@ export const loginUser = async (req, res) => {
     res.json({
       message: "Giriş başarılı",
       token,
-      userId: user.id, // Frontend'e doğrudan userId gönderiyoruz
-      username: user.username, // Frontend'e doğrudan username gönderiyoruz
+      // userId: user.id, // Frontend'e doğrudan userId gönderiyoruz
+      // username: user.username, // Frontend'e doğrudan username gönderiyoruz
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        name: userProfile.name,
+        bio: userProfile.bio,
+        gender: userProfile.gender,
+      },
     });
   } catch (err) {
     console.error(err);
