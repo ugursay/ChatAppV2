@@ -2,19 +2,19 @@
 import { useState } from "react";
 import axios from "axios";
 import { useContext } from "react";
-import { AuthContext } from "../context/AuthContext"; // Bu satırı kaldırdık
+import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { jwtDecode } from "jwt-decode";
+// import { jwtDecode } from "jwt-decode";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { login } = useContext(AuthContext); // AuthContext doğrudan erişilebilir
+  const { login } = useContext(AuthContext);
 
   const navigate = useNavigate();
 
@@ -33,21 +33,16 @@ const Login = () => {
 
       toast.success(res.data.message);
 
-      const token = res.data.token;
-      const decodedToken = jwtDecode(token);
-
-      // AuthContext'e userId, email, username ve token'ı birlikte gönder
+      // Backend'den dönen token ve user objesini doğrudan AuthContext'e gönder
       login({
-        id: decodedToken.id, // Token içinden alınan ID
-        email: decodedToken.email, // Token içinden alınan email
-        username: decodedToken.username, // Token içinden alınan username
-        token: token,
+        ...res.data.user, // Backend'den gelen tüm kullanıcı ve profil bilgileri (id, username, email, name, bio, gender)
+        token: res.data.token, // Token
       });
 
       setEmail("");
       setPassword("");
       setTimeout(() => {
-        navigate("/user"); // Direkt arkadaşlık sayfasına yönlendirme veya User paneline
+        navigate("/user"); // Kullanıcı paneline yönlendir
       }, 1500);
     } catch (err) {
       toast.error(

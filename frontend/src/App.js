@@ -10,6 +10,7 @@ import VerifyEmail from "./pages/VerifyEmail"; // Yeni ekledik
 import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ChatPage from "./pages/ChatPage";
+import ProfileEdit from "./pages/ProfileEdit";
 
 function App() {
   return (
@@ -45,6 +46,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ChatPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile-edit"
+            element={
+              <ProtectedRoute>
+                <ProfileEdit />
               </ProtectedRoute>
             }
           />

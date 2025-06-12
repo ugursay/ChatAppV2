@@ -1,16 +1,18 @@
-// routes/users.js
+// backend/routes/users.js
 import express from "express";
 import {
   getAllUsers,
   updateUserProfile,
-} from "../controllers/userController.js";
-import authMiddleware from "../middleware/authMiddleware.js"; // Kimlik doğrulama middleware'ini ekledik
+  getUserProfile,
+} from "../controllers/userController.js"; // <-- getUserProfile import edildi
+import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Bu rotayı korumak için authMiddleware kullan
-router.use(authMiddleware);
-router.get("/", getAllUsers);
-router.put("/profile", updateUserProfile);
+router.use(authMiddleware); // Bu rotadaki tüm işlemler için kimlik doğrulaması gerekli
+
+router.get("/", getAllUsers); // Tüm kullanıcıları listeleme
+router.put("/profile", updateUserProfile); // Profil güncelleme için PUT rota
+router.get("/profile", getUserProfile); // <-- YENİ ROTA: Giriş yapmış kullanıcının profilini çekme için GET rota
 
 export default router;

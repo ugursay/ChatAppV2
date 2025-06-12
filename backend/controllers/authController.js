@@ -10,7 +10,7 @@ export const registerUser = async (req, res) => {
 
   try {
     const [existingUser] = await db.execute(
-      "SELECT * FROM users WHERE email=? OR username=?",
+      "SELECT id FROM users WHERE email = ? OR username = ?",
       [email, username]
     );
     if (existingUser.length > 0) {
@@ -21,14 +21,16 @@ export const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const [result] = await db.execute(
-      "INSERT INTO users (username, email, password) VALUES (?,?,?)",
+      "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
       [username, email, hashedPassword]
     );
 
     const userId = result.insertId;
 
+    // YENİ: user_profiles tablosuna başlangıç profili ekle
+    // İlk olarak 'name' alanını 'username' ile aynı yapıyoruz, 'bio' ve 'gender' boş olsun
     await db.execute(
-      `INSERT INTO user_profiles (user_id,name,bio,gender) VALUES (?,?,?,?)`,
+      `INSERT INTO user_profiles (user_id, name, bio, gender) VALUES (?, ?, ?, ?)`,
       [userId, username, "", ""]
     );
 
@@ -56,10 +58,12 @@ export const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const [rows] = await db.execute("SELECT * FROM users WHERE email = ?", [
-      email,
-    ]);
-    const user = rows[0];
+    // Kullanıcıyı e-posta ile users tablosundan bul
+    const [users] = await db.execute(
+      `SELECT id, username, email, password FROM users WHERE email = ?`,
+      [email]
+    );
+    const user = users[0];
 
     if (!user) {
       return res.status(400).json({ message: "Geçersiz kimlik bilgileri." });
@@ -71,37 +75,36 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ message: "Geçersiz kimlik bilgileri." });
     }
 
+    // YENİ: user_profiles tablosundan ilgili kullanıcının profil bilgilerini çek
     const [profiles] = await db.execute(
       `SELECT name, bio, gender FROM user_profiles WHERE user_id = ?`,
       [user.id]
     );
+    const userProfile = profiles[0] || {}; // Eğer profil bulunamazsa (ki olmamalı), boş obje kullan
 
-    const userProfile = profiles[0] || {};
-
-    // Token oluştururken username ve email'i de payload'a ekle
+    // JWT oluştur
     const token = jwt.sign(
-      { id: user.id, email: user.email, username: user.username }, // username ve email eklendi
+      { id: user.id, username: user.username, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
 
-    res.json({
-      message: "Giriş başarılı",
+    // Tüm kullanıcı bilgilerini (users ve user_profiles'tan çekilenleri birleştirerek) gönder
+    res.status(200).json({
+      message: "Giriş başarılı.",
       token,
-      // userId: user.id, // Frontend'e doğrudan userId gönderiyoruz
-      // username: user.username, // Frontend'e doğrudan username gönderiyoruz
       user: {
         id: user.id,
         username: user.username,
         email: user.email,
-        name: userProfile.name,
-        bio: userProfile.bio,
-        gender: userProfile.gender,
+        name: userProfile.name, // Profilden gelen name
+        bio: userProfile.bio, // Profilden gelen bio
+        gender: userProfile.gender, // Profilden gelen gender
       },
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Sunucu hatası." });
+    res.status(500).json({ message: "Giriş yaparken hata oluştu." });
   }
 };
 

@@ -15,6 +15,10 @@ const User = () => {
     navigate("/chat");
   };
 
+  const handleEditProfile = () => {
+    navigate("/profile-edit");
+  };
+
   const handleLogout = () => {
     logout();
     toast.info("Başarıyla çıkış yaptınız.");
@@ -27,7 +31,7 @@ const User = () => {
         <h1 className="text-xl font-semibold text-center mb-10 hover:scale-105 transition-transform duration-300 will-change-transform">
           Hoş geldin<br></br>
           <span className="text-blue-600 break-all">
-            {user?.username || user?.email}
+            {user?.name || user?.username || user?.email}
           </span>
         </h1>
 
@@ -45,7 +49,7 @@ const User = () => {
             Mesaj Panelim
           </button>
           <button
-            // onClick={handleChat}
+            onClick={handleEditProfile}
             className="w-full bg-blue-500 text-white font-semibold py-2 rounded-lg hover:bg-blue-600 transition-colors hover:scale-105 transition-transform duration-300 will-change-transform"
           >
             Profilimi Düzenle

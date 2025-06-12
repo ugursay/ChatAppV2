@@ -19,6 +19,37 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
+// Giriş yapmış kullanıcının profil bilgilerini çekme
+export const getUserProfile = async (req, res) => {
+  const userId = req.user.id; // Auth middleware'dan gelen kullanıcı ID'si
+
+  try {
+    const [userResult] = await db.execute(
+      `SELECT u.id, u.username, u.email, up.name, up.bio, up.gender
+       FROM users u
+       LEFT JOIN user_profiles up ON u.id = up.user_id
+       WHERE u.id = ?`,
+      [userId]
+    );
+
+    const user = userResult[0];
+
+    if (!user) {
+      return res.status(404).json({ message: "Kullanıcı profili bulunamadı." });
+    }
+
+    res.status(200).json({
+      message: "Profil bilgileri başarıyla alındı.",
+      user: user,
+    });
+  } catch (error) {
+    console.error("Kullanıcı profili alınırken hata oluştu:", error);
+    res
+      .status(500)
+      .json({ message: "Profil bilgileri alınırken sunucu hatası oluştu." });
+  }
+};
+
 // Kullanıcı profilini güncelleme
 export const updateUserProfile = async (req, res) => {
   const userId = req.user.id; // Token'dan gelen kullanıcı ID'si
@@ -106,20 +137,19 @@ export const updateUserProfile = async (req, res) => {
         .json({ message: "Güncellenecek hiçbir bilgi sağlanmadı." });
     }
 
-    const [updatedUserResult] = await db.execute(`
-      SELECT u.id, u.username, u.email, up.name, up.bio, up.gender
-      FROM users u
-      LEFT JOIN user_profiles up ON u.id = up.user_id
-      WHERE u.id = ?,
+    // Güncellenmiş tüm kullanıcı bilgilerini (users ve user_profiles'tan JOIN ile) döndür
+    const [updatedUserResult] = await db.execute(
+      `SELECT u.id, u.username, u.email, up.name, up.bio, up.gender
+         FROM users u
+         LEFT JOIN user_profiles up ON u.id = up.user_id
+         WHERE u.id = ?`, // <-- BURADAKİ FAZLA VİRGÜL KALDIRILDI!
       [userId]
-      `);
+    );
 
-    res
-      .status(200)
-      .json({
-        message: "Profil başarıyla güncellendi",
-        user: updatedUserResult[0],
-      });
+    res.status(200).json({
+      message: "Profil başarıyla güncellendi.",
+      user: updatedUserResult[0],
+    });
   } catch (error) {
     console.error("Profil güncellenirken hata oluştu: ", error);
     res
