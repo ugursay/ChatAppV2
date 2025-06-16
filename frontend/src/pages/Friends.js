@@ -237,6 +237,10 @@ const Friends = () => {
     );
   };
 
+  const handleViewFriendProfile = (friendId) => {
+    navigate(`/profile/${friendId}`);
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
       <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-2xl">
@@ -367,7 +371,8 @@ const Friends = () => {
               {friends.map((friend) => (
                 <li
                   key={friend.id}
-                  className="flex items-center justify-between bg-gray-200 px-5 py-2 hover:scale-105 transition-transform duration-300 will-change-transform bg-gray-200 bg-opacity-60 rounded-xl w-full max-w-md mx-auto"
+                  onClick={() => handleViewFriendProfile(friend.id)}
+                  className="flex items-center justify-between bg-green-50 p-3 rounded-md shadow-sm border border-green-100 cursor-pointer hover:bg-green-100 transition-colors duration-200"
                 >
                   <span className="flex-grow min-w-0 truncate">
                     {" "}
@@ -375,7 +380,8 @@ const Friends = () => {
                     {friend.username}
                   </span>
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       handleUnfriend(friend.id);
                     }}
                     disabled={loading}

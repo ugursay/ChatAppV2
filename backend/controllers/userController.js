@@ -19,9 +19,10 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
-// Giriş yapmış kullanıcının profil bilgilerini çekme
+// Belirli bir kullanıcının veya mevcut kullanıcının profil bilgilerini çekme
 export const getUserProfile = async (req, res) => {
-  const userId = req.user.id; // Auth middleware'dan gelen kullanıcı ID'si
+  // Eğer URL'de bir userId parametresi varsa onu kullan, yoksa token'dan gelen mevcut kullanıcının ID'sini kullan
+  const userIdToFetch = req.params.userId || req.user.id;
 
   try {
     const [userResult] = await db.execute(
@@ -29,7 +30,7 @@ export const getUserProfile = async (req, res) => {
        FROM users u
        LEFT JOIN user_profiles up ON u.id = up.user_id
        WHERE u.id = ?`,
-      [userId]
+      [userIdToFetch]
     );
 
     const user = userResult[0];

@@ -11,6 +11,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ChatPage from "./pages/ChatPage";
 import ProfileEdit from "./pages/ProfileEdit";
+import ProfileViewPage from "./pages/ProfileViewPage";
 
 function App() {
   return (
@@ -54,6 +55,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ProfileEdit />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/:userId"
+            element={
+              <ProtectedRoute>
+                <ProfileViewPage />
               </ProtectedRoute>
             }
           />

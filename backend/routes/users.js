@@ -13,6 +13,6 @@ router.use(authMiddleware); // Bu rotadaki tüm işlemler için kimlik doğrulam
 
 router.get("/", getAllUsers); // Tüm kullanıcıları listeleme
 router.put("/profile", updateUserProfile); // Profil güncelleme için PUT rota
-router.get("/profile", getUserProfile); // <-- YENİ ROTA: Giriş yapmış kullanıcının profilini çekme için GET rota
-
+router.get("/profile", getUserProfile); // Mevcut kullanıcının kendi profilini çekme
+router.get("/:userId/profile", getUserProfile); // Belirli bir kullanıcının profilini ID ile çekme
 export default router;
