@@ -264,7 +264,7 @@ const Friends = () => {
               {getConnectableUsers().map((userItem) => (
                 <li
                   key={userItem.id}
-                  className="flex items-center justify-between bg-gray-200 px-5 py-2 hover:scale-105 transition-transform duration-300 will-change-transform bg-gray-200 bg-opacity-60 rounded-xl w-full max-w-md mx-auto"
+                  className="flex items-center justify-between bg-gray-200 px-5 py-2 hover:scale-95 transition-transform duration-300 will-change-transform bg-gray-200 bg-opacity-60 rounded-xl w-full max-w-md mx-auto"
                 >
                   <span className="flex-grow min-w-0 truncate">
                     {userItem.username}
@@ -334,7 +334,7 @@ const Friends = () => {
               {outgoingRequests.map((req) => (
                 <li
                   key={req.id}
-                  className="flex items-center justify-between bg-gray-200 px-5 py-2 hover:scale-105 transition-transform duration-300 will-change-transform bg-gray-200 bg-opacity-60 rounded-xl w-full max-w-md mx-auto"
+                  className="flex items-center justify-between bg-gray-200 px-5 py-2 hover:scale-95 transition-transform duration-300 will-change-transform bg-gray-200 bg-opacity-60 rounded-xl w-full max-w-md mx-auto"
                 >
                   <span className="flex-grow min-w-0 truncate">
                     {req.username}
@@ -372,7 +372,7 @@ const Friends = () => {
                 <li
                   key={friend.id}
                   onClick={() => handleViewFriendProfile(friend.id)}
-                  className="flex items-center justify-between bg-green-50 p-3 rounded-md shadow-sm border border-green-100 cursor-pointer hover:bg-green-100 transition-colors duration-200"
+                  className="flex items-center justify-between bg-gray-100 p-3 rounded-md shadow-sm cursor-pointer hover:scale-95 transition-transform will-change-transform hover:bg-gray-100 transition-colors duration-300"
                 >
                   <span className="flex-grow min-w-0 truncate">
                     {" "}

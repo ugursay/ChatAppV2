@@ -28,7 +28,7 @@ const User = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md hover:scale-105 transition-transform duration-300 will-change-transform">
+      <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
         <h1 className="text-2xl font-semibold text-center mb-6 text-gray-800">
           Profilim
         </h1>
